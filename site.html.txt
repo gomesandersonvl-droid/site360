@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Galeria 360° Responsiva com Zoom</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #viewer {
+      flex: 1;
+      width: 100%;
+      position: relative;
+    }
+    #galeria {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    #galeria img {
+      flex: 0 0 auto;
+      width: 100px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+      scroll-snap-align: center;
+    }
+    #galeria img:hover {
+      transform: scale(1.1);
+      border-color: #1e90ff;
+    }
+    #galeria img.selecionada {
+      border-color: #ffcc00;
+      transform: scale(1.1);
+    }
+    #fullscreenBtn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: 2px solid #1e90ff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    #fullscreenBtn:hover {
+      background: #1e90ff;
+    }
+    /* Botões de zoom */
+    .zoom-controls {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .zoom-controls button {
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: 2px solid #1e90ff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    .zoom-controls button:hover {
+      background: #1e90ff;
+    }
+
+    /* Responsividade para celular */
+    @media (max-width: 600px) {
+      #galeria img {
+        width: 80px;
+        height: 50px;
+      }
+      #fullscreenBtn {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+      .zoom-controls button {
+        font-size: 14px;
+        padding: 6px 10px;
+      }
+    }
+  </style>
+
+  <!-- Importando Photo Sphere Viewer -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photo-sphere-viewer@5/dist/photo-sphere-viewer.css">
+  <script src="https://cdn.jsdelivr.net/npm/three/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/photo-sphere-viewer@5/dist/photo-sphere-viewer.js"></script>
+</head>
+<body>
+  <div id="viewer">
+    <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Tela cheia</button>
+    
+    <!-- Botões de zoom -->
+    <div class="zoom-controls">
+      <button onclick="zoomIn()">＋</button>
+      <button onclick="zoomOut()">－</button>
+    </div>
+  </div>
+
+  <!-- Miniaturas em carrossel -->
+  <div id="galeria">
+    <img src="thumb1.jpg" alt="Imagem 1" onclick="trocarImagem(this, 'imagem1.jpg')" class="selecionada">
+    <img src="thumb2.jpg" alt="Imagem 2" onclick="trocarImagem(this, 'imagem2.jpg')">
+    <img src="thumb3.jpg" alt="Imagem 3" onclick="trocarImagem(this, 'imagem3.jpg')">
+    <img src="thumb4.jpg" alt="Imagem 4" onclick="trocarImagem(this, 'imagem4.jpg')">
+    <img src="thumb5.jpg" alt="Imagem 5" onclick="trocarImagem(this, 'imagem5.jpg')">
+  </div>
+
+  <script>
+    // Inicializa o visualizador
+    const viewer = new PhotoSphereViewer.Viewer({
+      container: document.getElementById('viewer'),
+      panorama: 'imagem1.jpg', // primeira imagem que abre
+      caption: 'Galeria 360°',
+      loadingImg: 'https://photo-sphere-viewer.js.org/assets/photosphere-logo.gif',
+      touchmoveTwoFingers: true,
+      mousewheelCtrlKey: false, // permite zoom direto no scroll
+      navbar: [], // esconde barra padrão
+      minFov: 30, // limite de zoom máximo
+      maxFov: 100 // limite de zoom mínimo
+    });
+
+    // Trocar imagem e destacar miniatura selecionada
+    function trocarImagem(elemento, nomeArquivo) {
+      viewer.setPanorama(nomeArquivo);
+      document.querySelectorAll('#galeria img').forEach(img => img.classList.remove('selecionada'));
+      elemento.classList.add('selecionada');
+    }
+
+    // Ativar/desativar fullscreen
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Funções de zoom
+    function zoomIn() {
+      let fov = viewer.getZoomLevel();
+      if (fov > 30) viewer.zoom(fov - 10); // aproxima
+    }
+    function zoomOut() {
+      let fov = viewer.getZoomLevel();
+      if (fov < 100) viewer.zoom(fov + 10); // afasta
+    }
+  </script>
+</body>
+</html>
